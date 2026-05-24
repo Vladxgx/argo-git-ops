@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: welcome-page
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+      <head>
+        <title>app-2-qa</title>
+        <style>
+          body {
+            align-items: center;
+            background: #f5f7fb;
+            color: #172033;
+            display: flex;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            justify-content: center;
+            margin: 0;
+          }
+          main {
+            text-align: center;
+          }
+          h1 {
+            font-size: 48px;
+            margin: 0 0 12px;
+          }
+          p {
+            font-size: 20px;
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>Welcome to app-2-qa</h1>
+          <p>Served by Argo CD from app-2/k8s-qa.</p>
+        </main>
+      </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: welcome-app
+  labels:
+    app: welcome-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: welcome-app
+  template:
+    metadata:
+      labels:
+        app: welcome-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: welcome-page
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      volumes:
+        - name: welcome-page
+          configMap:
+            name: welcome-page
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: welcome-app
+spec:
+  type: ClusterIP
+  selector:
+    app: welcome-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
