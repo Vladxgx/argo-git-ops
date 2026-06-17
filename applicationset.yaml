@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: hello-newapp
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/Vladxgx/argo-git-ops
+        revision: main
+        directories:
+          - path: dev
+          - path: qa
+          - path: prod
+  template:
+    metadata:
+      name: "hello-newapp-{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Vladxgx/argo-git-ops
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "hello-newapp-{{path.basename}}"
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
