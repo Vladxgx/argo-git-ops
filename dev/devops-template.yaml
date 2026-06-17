@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
         - name: hello-newapp
-          image: "vladxgx/hello-newapp:16"
+          image: "vladxgx/hello-newapp:18"
           imagePullPolicy: Always
           ports:
             - name: http
