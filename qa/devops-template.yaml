@@ -1,0 +1,58 @@
+---
+# Source: hello-newapp/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-newapp
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8000"
+  labels:
+    app: hello-newapp
+    app.kubernetes.io/name: hello-newapp
+    app.kubernetes.io/instance: hello-newapp
+spec:
+  type: ClusterIP
+  selector:
+    app: hello-newapp
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+---
+# Source: hello-newapp/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-newapp
+  labels:
+    app: hello-newapp
+    app.kubernetes.io/name: hello-newapp
+    app.kubernetes.io/instance: hello-newapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-newapp
+  template:
+    metadata:
+      labels:
+        app: hello-newapp
+    spec:
+      containers:
+        - name: hello-newapp
+          image: "vladxgx/hello-newapp:9"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
